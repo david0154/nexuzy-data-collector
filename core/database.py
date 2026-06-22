@@ -114,20 +114,20 @@ class Database:
 
 
             CREATE TABLE IF NOT EXISTS cities (
-                id                INTEGER PRIMARY KEY AUTOINCREMENT,
-                name              TEXT NOT NULL,
-                district          TEXT,
-                state             TEXT,
-                description       TEXT,
+                id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+                name               TEXT NOT NULL,
+                district           TEXT,
+                state              TEXT,
+                description        TEXT,
                 best_time_to_visit TEXT,
-                how_to_reach      TEXT,
-                latitude          REAL,
-                longitude         REAL,
-                peak_season       TEXT,
-                off_season        TEXT,
-                visit_months      TEXT,
-                avg_visit_days    TEXT,
-                created_at        TEXT
+                how_to_reach       TEXT,
+                latitude           REAL,
+                longitude          REAL,
+                peak_season        TEXT,
+                off_season         TEXT,
+                visit_months       TEXT,
+                avg_visit_days     TEXT,
+                created_at         TEXT
             );
 
 
@@ -153,6 +153,27 @@ class Database:
                 description      TEXT,
                 verified         INTEGER DEFAULT 0,
                 created_at       TEXT
+            );
+
+
+            CREATE TABLE IF NOT EXISTS flights (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                name            TEXT,
+                airline         TEXT,
+                origin          TEXT,
+                destination     TEXT,
+                route_name      TEXT,
+                departure_time  TEXT,
+                arrival_time    TEXT,
+                duration        TEXT,
+                fare            TEXT,
+                description     TEXT,
+                latitude        REAL,
+                longitude       REAL,
+                source_url      TEXT,
+                source_type     TEXT DEFAULT 'scraped',
+                sources         TEXT,
+                created_at      TEXT
             );
 
 
@@ -244,6 +265,23 @@ class Database:
             ('cities',         'off_season',         'TEXT'),
             ('cities',         'visit_months',       'TEXT'),
             ('cities',         'avg_visit_days',     'TEXT'),
+
+            # ── flights table columns (for existing DBs without the table) ──
+            ('flights',        'name',               'TEXT'),
+            ('flights',        'airline',            'TEXT'),
+            ('flights',        'origin',             'TEXT'),
+            ('flights',        'destination',        'TEXT'),
+            ('flights',        'route_name',         'TEXT'),
+            ('flights',        'departure_time',     'TEXT'),
+            ('flights',        'arrival_time',       'TEXT'),
+            ('flights',        'duration',           'TEXT'),
+            ('flights',        'fare',               'TEXT'),
+            ('flights',        'description',        'TEXT'),
+            ('flights',        'latitude',           'REAL'),
+            ('flights',        'longitude',          'REAL'),
+            ('flights',        'source_url',         'TEXT'),
+            ('flights',        'source_type',        "TEXT DEFAULT 'scraped'"),
+            ('flights',        'sources',            'TEXT'),
         ]
         for table, col, defn in migrations:
             try:
@@ -330,6 +368,10 @@ class Database:
         return self._safe_insert('guides', data)
 
 
+    def insert_flight(self, data: dict) -> int:
+        return self._safe_insert('flights', data)
+
+
     def insert_batch(self, table: str, records: list) -> int:
         """Insert multiple records into a table at once"""
         if not records:
@@ -350,6 +392,8 @@ class Database:
                     self.insert_event(record)
                 elif table == 'guides':
                     self.insert_guide(record)
+                elif table == 'flights':
+                    self.insert_flight(record)
                 else:
                     self._safe_insert(table, record)
                 inserted += 1
@@ -400,11 +444,15 @@ class Database:
     # Query helpers
     # ------------------------------------------------------------------
     def get_stats(self) -> dict:
-        tables = ['hotels', 'tourist_places', 'restaurants', 'routes', 'events', 'guides', 'crawl_log']
+        tables = ['hotels', 'tourist_places', 'restaurants', 'routes', 'flights',
+                  'events', 'guides', 'crawl_log']
         stats = {}
         for t in tables:
-            row = self.conn.execute(f"SELECT COUNT(*) as cnt FROM {t}").fetchone()
-            stats[t] = row['cnt']
+            try:
+                row = self.conn.execute(f"SELECT COUNT(*) as cnt FROM {t}").fetchone()
+                stats[t] = row['cnt']
+            except Exception:
+                stats[t] = 0
         return stats
 
 
