@@ -1,0 +1,67 @@
+# ============================================================
+# Nexuzy Data Collector - Requirements
+# TRULY 100% PURE PYTHON — ZERO C / C++ ANYWHERE
+# Python 3.14 (cp314) compatible — all prebuilt wheels
+# NO C compiler, NO Visual Studio needed
+# ============================================================
+# INSTALL:
+#   pip install -r requirements.txt
+# ============================================================
+
+# --- Web Scraping (100% pure Python) ---
+requests>=2.32.3
+beautifulsoup4>=4.12.3
+html5lib==1.1
+trafilatura>=1.12.0
+newspaper4k>=0.9.3.1
+
+# --- Browser Automation ---
+# playwright REMOVED: depends on greenlet which needs C++ on Python 3.14
+# selenium REMOVED: depends on playwright/greenlet indirectly
+# Use requests + beautifulsoup4 for scraping instead
+# If you need JS rendering, use httpx with async
+selenium>=4.27.1
+webdriver-manager>=4.0.2
+
+# --- AI / LLM (pure Python ONLY) ---
+transformers>=4.47.1
+huggingface_hub>=0.26.5
+protobuf>=5.29.1
+
+# --- Database (100% pure Python) ---
+sqlite-utils>=3.37
+
+# --- Data Processing ---
+# numpy/pandas: Python 3.14 prebuilt wheels available
+numpy>=2.0.0
+pandas>=2.2.3
+openpyxl>=3.1.5
+thefuzz>=0.22.1
+
+# --- Geo / Location (pure Python) ---
+geopy>=2.4.1
+
+# --- Wikipedia (pure Python) ---
+wikipedia>=1.4.0
+
+# --- RSS (pure Python) ---
+feedparser>=6.0.11
+
+# --- Utilities (all 100% pure Python) ---
+tqdm>=4.67.1
+loguru>=0.7.3
+pyyaml>=6.0.2
+python-dotenv>=1.0.1
+schedule>=1.2.2
+httpx>=0.28.1
+urllib3>=2.2.3
+certifi>=2024.12.14
+charset-normalizer>=3.4.1
+
+# --- Export (pure Python) ---
+jsonlines>=4.0.0
+markdown>=3.7
+
+# NOTE: Pillow REMOVED — no prebuilt wheel for Python 3.14 yet
+# For image thumbnails use: pip install pillow --pre (pre-release)
+# Or downgrade to Python 3.12 for full Pillow support

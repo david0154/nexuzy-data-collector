@@ -1,0 +1,31 @@
+# Optional extra sources for structured and semi-structured travel discovery
+# These modules are integrated manually from Python code or future UI buttons.
+
+optional_sources:
+  osm:
+    enabled: true
+    area_defaults:
+      - "West Bengal"
+      - "Sikkim"
+      - "Rajasthan"
+      - "Kerala"
+      - "Goa"
+    overpass_url: "https://overpass-api.de/api/interpreter"
+    default_limit: 200
+
+  wikidata:
+    enabled: true
+    sparql_endpoint: "https://query.wikidata.org/sparql"
+    # Hotel entity type: Q27686
+    # Guest house: Q2714619
+
+  wikipedia:
+    enabled: true
+    language: "en"
+    area_hint: "India"
+
+  rss:
+    enabled: true
+    feeds:
+      - "https://www.thrillophilia.com/blog/feed"
+      - "https://traveltriangle.com/blog/feed"
