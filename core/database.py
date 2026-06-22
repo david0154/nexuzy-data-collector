@@ -12,187 +12,252 @@ class Database:
         self.conn = sqlite3.connect(db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self._create_tables()
-        self._migrate()
+        self._migrate()           # safely adds missing columns to existing DB
+        logger.info(f"Database initialized at {db_path}")
 
+
+    # ------------------------------------------------------------------
+    # Schema creation
+    # ------------------------------------------------------------------
     def _create_tables(self):
-        self.conn.executescript("""
+        cur = self.conn.cursor()
+        cur.executescript("""
             CREATE TABLE IF NOT EXISTS hotels (
                 id               INTEGER PRIMARY KEY AUTOINCREMENT,
                 name             TEXT NOT NULL,
                 city             TEXT,
-                state            TEXT,
+                district         TEXT,
+                state            TEXT DEFAULT 'West Bengal',
                 address          TEXT,
                 description      TEXT,
-                stars            TEXT,
-                rating           REAL,
+                price_min        REAL,
+                price_max        REAL,
                 price_per_night  TEXT,
+                category         TEXT,
                 amenities        TEXT,
                 contact          TEXT,
                 website          TEXT,
+                stars            TEXT,
                 latitude         REAL,
                 longitude        REAL,
-                category         TEXT,
+                rating           REAL,
                 source_url       TEXT,
+                check_in_time    TEXT,
+                check_out_time   TEXT,
+                peak_season      TEXT,
+                off_season       TEXT,
+                visit_months     TEXT,
+                verified         INTEGER DEFAULT 0,
+                confidence       INTEGER DEFAULT 0,
                 sources          TEXT,
-                source_type      TEXT DEFAULT 'scraped',
-                source_platform  TEXT,
-                review_count     INTEGER,
                 created_at       TEXT,
                 updated_at       TEXT
             );
 
+
             CREATE TABLE IF NOT EXISTS tourist_places (
-                id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-                name                TEXT NOT NULL,
-                city                TEXT,
-                state               TEXT,
-                district            TEXT,
-                address             TEXT,
-                category            TEXT,
-                description         TEXT,
-                entry_fee           TEXT,
-                timings             TEXT,
-                best_time_to_visit  TEXT,
-                rating              REAL,
-                latitude            REAL,
-                longitude           REAL,
-                visit_duration      TEXT,
-                peak_season         TEXT,
-                crowd_level         TEXT,
-                accessibility       TEXT,
-                source_url          TEXT,
-                sources             TEXT,
-                source_type         TEXT DEFAULT 'scraped',
-                created_at          TEXT,
-                updated_at          TEXT
+                id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                name                 TEXT NOT NULL,
+                city                 TEXT,
+                district             TEXT,
+                state                TEXT DEFAULT 'India',
+                address              TEXT,
+                description          TEXT,
+                category             TEXT,
+                entry_fee            TEXT,
+                timings              TEXT,
+                best_time_to_visit   TEXT,
+                latitude             REAL,
+                longitude            REAL,
+                rating               REAL,
+                source_url           TEXT,
+                visit_duration       TEXT,
+                open_days            TEXT,
+                peak_season          TEXT,
+                off_season           TEXT,
+                visit_tips           TEXT,
+                crowd_level          TEXT,
+                visit_months         TEXT,
+                verified             INTEGER DEFAULT 0,
+                confidence           INTEGER DEFAULT 0,
+                sources              TEXT,
+                created_at           TEXT,
+                updated_at           TEXT
             );
+
 
             CREATE TABLE IF NOT EXISTS restaurants (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
                 name         TEXT NOT NULL,
                 city         TEXT,
+                district     TEXT,
                 state        TEXT,
                 address      TEXT,
+                description  TEXT,
                 cuisine      TEXT,
-                rating       REAL,
                 price_range  TEXT,
+                contact      TEXT,
+                timings      TEXT,
                 latitude     REAL,
                 longitude    REAL,
-                contact      TEXT,
-                website      TEXT,
+                rating       REAL,
                 source_url   TEXT,
+                open_days    TEXT,
+                peak_hours   TEXT,
+                visit_tips   TEXT,
+                verified     INTEGER DEFAULT 0,
+                confidence   INTEGER DEFAULT 0,
                 sources      TEXT,
-                source_type  TEXT DEFAULT 'scraped',
                 created_at   TEXT,
                 updated_at   TEXT
             );
 
+
+            CREATE TABLE IF NOT EXISTS cities (
+                id                INTEGER PRIMARY KEY AUTOINCREMENT,
+                name              TEXT NOT NULL,
+                district          TEXT,
+                state             TEXT,
+                description       TEXT,
+                best_time_to_visit TEXT,
+                how_to_reach      TEXT,
+                latitude          REAL,
+                longitude         REAL,
+                peak_season       TEXT,
+                off_season        TEXT,
+                visit_months      TEXT,
+                avg_visit_days    TEXT,
+                created_at        TEXT
+            );
+
+
+            CREATE TABLE IF NOT EXISTS districts (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                name         TEXT NOT NULL,
+                state        TEXT,
+                description  TEXT,
+                tourist_info TEXT,
+                headquarters TEXT,
+                created_at   TEXT
+            );
+
+
             CREATE TABLE IF NOT EXISTS routes (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                from_city        TEXT,
+                to_city          TEXT,
+                distance_km      REAL,
+                travel_time      TEXT,
+                transport_modes  TEXT,
+                cost_estimate    TEXT,
+                description      TEXT,
+                verified         INTEGER DEFAULT 0,
+                created_at       TEXT
+            );
+
+
+            CREATE TABLE IF NOT EXISTS events (
                 id             INTEGER PRIMARY KEY AUTOINCREMENT,
                 name           TEXT NOT NULL,
-                route_type     TEXT,
-                origin         TEXT,
-                destination    TEXT,
-                distance_km    REAL,
-                duration_hrs   REAL,
+                city           TEXT,
+                district       TEXT,
+                state          TEXT,
                 description    TEXT,
-                source_url     TEXT,
-                sources        TEXT,
+                category       TEXT,
+                month          TEXT,
+                season         TEXT,
+                duration       TEXT,
+                start_date     TEXT,
+                end_date       TEXT,
+                visit_duration TEXT,
                 created_at     TEXT
             );
 
-            CREATE TABLE IF NOT EXISTS flights (
-                id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                airline         TEXT,
-                name            TEXT NOT NULL,
-                origin          TEXT,
-                destination     TEXT,
-                route_name      TEXT,
-                departure_time  TEXT,
-                arrival_time    TEXT,
-                duration        TEXT,
-                fare            TEXT,
-                description     TEXT,
-                source_url      TEXT,
-                sources         TEXT,
-                created_at      TEXT
-            );
-
-            CREATE TABLE IF NOT EXISTS events (
-                id           INTEGER PRIMARY KEY AUTOINCREMENT,
-                name         TEXT NOT NULL,
-                city         TEXT,
-                state        TEXT,
-                date         TEXT,
-                venue        TEXT,
-                description  TEXT,
-                category     TEXT,
-                source_url   TEXT,
-                sources      TEXT,
-                created_at   TEXT
-            );
 
             CREATE TABLE IF NOT EXISTS guides (
-                id           INTEGER PRIMARY KEY AUTOINCREMENT,
-                title        TEXT NOT NULL,
-                city         TEXT,
-                state        TEXT,
-                content      TEXT,
-                category     TEXT,
-                source_url   TEXT,
-                sources      TEXT,
-                created_at   TEXT
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                title       TEXT NOT NULL,
+                city        TEXT,
+                district    TEXT,
+                state       TEXT,
+                content     TEXT,
+                category    TEXT,
+                source_url  TEXT,
+                created_at  TEXT
             );
 
+
             CREATE TABLE IF NOT EXISTS crawl_log (
-                id                 INTEGER PRIMARY KEY AUTOINCREMENT,
-                url                TEXT UNIQUE,
-                status             TEXT,
-                records_extracted  INTEGER DEFAULT 0,
-                crawled_at         TEXT
+                id                INTEGER PRIMARY KEY AUTOINCREMENT,
+                url               TEXT UNIQUE,
+                status            TEXT,
+                records_extracted INTEGER DEFAULT 0,
+                crawled_at        TEXT
             );
         """)
         self.conn.commit()
 
+
+    # ------------------------------------------------------------------
+    # Safe migration — adds new columns to EXISTING databases without
+    # dropping any data.  Always safe to run; ALTER TABLE is a no-op if
+    # the column already exists (caught and ignored).
+    # ------------------------------------------------------------------
     def _migrate(self):
-        """Add columns introduced after initial schema creation."""
         migrations = [
+            # (table, column, definition)
+            # ── original columns (kept for older DBs) ──────────────────────
+            ('restaurants',    'source_url',        'TEXT'),
             ('hotels',         'source_url',         'TEXT'),
             ('hotels',         'price_per_night',    'TEXT'),
             ('hotels',         'stars',              'TEXT'),
-            ('hotels',         'source_type',        'TEXT DEFAULT \'scraped\''),
-            ('hotels',         'source_platform',    'TEXT'),
-            ('hotels',         'review_count',       'INTEGER'),
             ('tourist_places', 'source_url',         'TEXT'),
-            ('tourist_places', 'source_type',        'TEXT DEFAULT \'scraped\''),
+
+            # ── NEW: visit-time columns — tourist_places ───────────────────
             ('tourist_places', 'visit_duration',     'TEXT'),
+            ('tourist_places', 'open_days',          'TEXT'),
             ('tourist_places', 'peak_season',        'TEXT'),
+            ('tourist_places', 'off_season',         'TEXT'),
+            ('tourist_places', 'visit_tips',         'TEXT'),
             ('tourist_places', 'crowd_level',        'TEXT'),
-            ('tourist_places', 'accessibility',      'TEXT'),
-            ('restaurants',    'source_url',         'TEXT'),
-            ('restaurants',    'source_type',        'TEXT DEFAULT \'scraped\''),
-            # ── NEW: visit-time columns — hotels ───────────────────────────────────
+            ('tourist_places', 'visit_months',       'TEXT'),
+
+            # ── NEW: visit-time columns — hotels ───────────────────────────
             ('hotels',         'check_in_time',      'TEXT'),
             ('hotels',         'check_out_time',     'TEXT'),
             ('hotels',         'peak_season',        'TEXT'),
             ('hotels',         'off_season',         'TEXT'),
             ('hotels',         'visit_months',       'TEXT'),
-            # ── NEW: visit-time columns — tourist_places ───────────────────────────
-            ('tourist_places', 'off_season',         'TEXT'),
-            ('tourist_places', 'visit_months',       'TEXT'),
-            # ── flights table extra columns ─────────────────────────────────────────────
-            ('flights',        'source_url',         'TEXT'),
-            ('flights',        'source_type',        'TEXT DEFAULT \'scraped\''),
+
+            # ── NEW: visit-time columns — restaurants ──────────────────────
+            ('restaurants',    'open_days',          'TEXT'),
+            ('restaurants',    'peak_hours',         'TEXT'),
+            ('restaurants',    'visit_tips',         'TEXT'),
+
+            # ── NEW: visit-time columns — events ──────────────────────────
+            ('events',         'start_date',         'TEXT'),
+            ('events',         'end_date',           'TEXT'),
+            ('events',         'visit_duration',     'TEXT'),
+
+            # ── NEW: visit-time columns — cities ──────────────────────────
+            ('cities',         'peak_season',        'TEXT'),
+            ('cities',         'off_season',         'TEXT'),
+            ('cities',         'visit_months',       'TEXT'),
+            ('cities',         'avg_visit_days',     'TEXT'),
         ]
-        for table, col, col_type in migrations:
+        for table, col, defn in migrations:
             try:
-                self.conn.execute(f'ALTER TABLE {table} ADD COLUMN {col} {col_type}')
+                self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {defn}")
                 self.conn.commit()
+                logger.info(f"DB migration: added {table}.{col}")
             except sqlite3.OperationalError:
-                pass  # column already exists
+                pass   # column already exists — that's fine
+
 
     # ------------------------------------------------------------------
-    # Core insert helper
+    # Safe insert  — strips any key that is NOT a real column in the
+    # target table so we never get 'no column named X' errors again,
+    # even when portal_fetcher or future scrapers add extra fields.
     # ------------------------------------------------------------------
     def _safe_insert(self, table: str, data: dict) -> int:
         now = datetime.now().isoformat()
@@ -218,8 +283,11 @@ class Database:
             raise ValueError(f"insert_safe: no valid keys for table '{table}'")
 
         # Guard NOT NULL name — skip rows where name is missing/blank/NaN
-        _NOT_NULL_NAME_TABLES = {'hotels', 'tourist_places', 'restaurants',
-                                  'routes', 'events', 'flights'}
+        # This prevents hundreds of SQLite constraint errors flooding the log
+        # when scrapers/OSM/Kaggle provide rows with no name field.
+        _NOT_NULL_NAME_TABLES = {
+            'hotels', 'tourist_places', 'restaurants', 'events', 'cities', 'districts'
+        }
         if table in _NOT_NULL_NAME_TABLES:
             _name_val = filtered.get('name', None)
             if not _name_val or str(_name_val).strip() in ('', 'nan', 'NaN', 'None', 'null'):
@@ -234,26 +302,33 @@ class Database:
         self.conn.commit()
         return cur.lastrowid
 
+
     # ------------------------------------------------------------------
     # Public insert methods (all delegate to _safe_insert)
     # ------------------------------------------------------------------
     def insert_hotel(self, data: dict) -> int:
         return self._safe_insert('hotels', data)
 
+
     def insert_tourist_place(self, data: dict) -> int:
         return self._safe_insert('tourist_places', data)
+
 
     def insert_restaurant(self, data: dict) -> int:
         return self._safe_insert('restaurants', data)
 
+
     def insert_route(self, data: dict) -> int:
         return self._safe_insert('routes', data)
+
 
     def insert_event(self, data: dict) -> int:
         return self._safe_insert('events', data)
 
+
     def insert_guide(self, data: dict) -> int:
         return self._safe_insert('guides', data)
+
 
     def insert_batch(self, table: str, records: list) -> int:
         """Insert multiple records into a table at once"""
@@ -282,57 +357,75 @@ class Database:
                 logger.warning(f"Failed to insert record into {table}: {e}")
                 continue
 
+        self.conn.commit()
+        logger.info(f"Inserted {inserted}/{len(records)} records into {table}")
         return inserted
+
+
+    # ------------------------------------------------------------------
+    # URL / crawl helpers
+    # ------------------------------------------------------------------
+    def is_url_crawled(self, url: str) -> bool:
+        row = self.conn.execute(
+            "SELECT 1 FROM crawl_log WHERE url = ? AND status = 'success'",
+            (url,)
+        ).fetchone()
+        return row is not None
+
+
+    def get_crawled_urls(self) -> set:
+        rows = self.conn.execute(
+            "SELECT url FROM crawl_log WHERE status = 'success'"
+        ).fetchall()
+        return {r['url'] for r in rows}
+
+
+    def get_existing_names(self, table: str, col: str = 'name') -> list:
+        rows = self.conn.execute(
+            f"SELECT {col} FROM {table} WHERE {col} IS NOT NULL"
+        ).fetchall()
+        return [r[col] for r in rows]
+
+
+    def log_crawl(self, url: str, status: str, records: int = 0):
+        self.conn.execute(
+            "INSERT OR REPLACE INTO crawl_log (url, status, records_extracted, crawled_at) "
+            "VALUES (?, ?, ?, ?)",
+            (url, status, records, datetime.now().isoformat())
+        )
+        self.conn.commit()
+
 
     # ------------------------------------------------------------------
     # Query helpers
     # ------------------------------------------------------------------
     def get_stats(self) -> dict:
-        stats = {}
         tables = ['hotels', 'tourist_places', 'restaurants', 'routes', 'events', 'guides', 'crawl_log']
-        for table in tables:
-            try:
-                row = self.conn.execute(f'SELECT COUNT(*) FROM {table}').fetchone()
-                stats[table] = row[0] if row else 0
-            except Exception:
-                stats[table] = 0
+        stats = {}
+        for t in tables:
+            row = self.conn.execute(f"SELECT COUNT(*) as cnt FROM {t}").fetchone()
+            stats[t] = row['cnt']
         return stats
 
-    def search(self, query: str, table: str = 'tourist_places', limit: int = 20) -> list:
-        try:
-            rows = self.conn.execute(
-                f"SELECT * FROM {table} "
-                f"WHERE name LIKE ? OR description LIKE ? OR city LIKE ? "
-                f"LIMIT ?",
-                (f'%{query}%', f'%{query}%', f'%{query}%', limit)
-            ).fetchall()
-            return [dict(r) for r in rows]
-        except Exception as e:
-            logger.error(f'Search failed: {e}')
-            return []
 
-    def log_crawl(self, url: str, status: str, records: int = 0):
-        try:
-            self.conn.execute(
-                "INSERT OR REPLACE INTO crawl_log (url, status, records_extracted, crawled_at) "
-                "VALUES (?, ?, ?, ?)",
-                (url, status, records, datetime.now().isoformat())
-            )
-            self.conn.commit()
-        except Exception as e:
-            logger.error(f'log_crawl failed: {e}')
+    def search(self, table: str, keyword: str, limit: int = 50) -> list:
+        query = (
+            f"SELECT * FROM {table} "
+            f"WHERE name LIKE ? OR description LIKE ? OR city LIKE ? "
+            f"LIMIT {limit}"
+        )
+        rows = self.conn.execute(
+            query, (f'%{keyword}%', f'%{keyword}%', f'%{keyword}%')
+        ).fetchall()
+        return [dict(r) for r in rows]
 
-    def get_existing_names(self, table: str, col: str = 'name') -> list:
-        try:
-            rows = self.conn.execute(
-                f"SELECT {col} FROM {table} WHERE {col} IS NOT NULL"
-            ).fetchall()
-            return [r[0] for r in rows]
-        except Exception:
-            return []
+
+    def get_all(self, table: str, limit: int = 1000, offset: int = 0) -> list:
+        rows = self.conn.execute(
+            f"SELECT * FROM {table} LIMIT ? OFFSET ?", (limit, offset)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
 
     def close(self):
-        try:
-            self.conn.close()
-        except Exception:
-            pass
+        self.conn.close()
