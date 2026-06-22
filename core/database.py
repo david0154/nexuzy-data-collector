@@ -12,7 +12,7 @@ class Database:
         self.conn = sqlite3.connect(db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self._create_tables()
-        self._migrate()           # safely adds missing columns to existing DB
+        self._migrate()
         logger.info(f"Database initialized at {db_path}")
 
 
@@ -54,7 +54,6 @@ class Database:
                 updated_at       TEXT
             );
 
-
             CREATE TABLE IF NOT EXISTS tourist_places (
                 id                   INTEGER PRIMARY KEY AUTOINCREMENT,
                 name                 TEXT NOT NULL,
@@ -85,7 +84,6 @@ class Database:
                 updated_at           TEXT
             );
 
-
             CREATE TABLE IF NOT EXISTS restaurants (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
                 name         TEXT NOT NULL,
@@ -112,7 +110,6 @@ class Database:
                 updated_at   TEXT
             );
 
-
             CREATE TABLE IF NOT EXISTS cities (
                 id                 INTEGER PRIMARY KEY AUTOINCREMENT,
                 name               TEXT NOT NULL,
@@ -130,7 +127,6 @@ class Database:
                 created_at         TEXT
             );
 
-
             CREATE TABLE IF NOT EXISTS districts (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
                 name         TEXT NOT NULL,
@@ -140,7 +136,6 @@ class Database:
                 headquarters TEXT,
                 created_at   TEXT
             );
-
 
             CREATE TABLE IF NOT EXISTS routes (
                 id               INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -154,7 +149,6 @@ class Database:
                 verified         INTEGER DEFAULT 0,
                 created_at       TEXT
             );
-
 
             CREATE TABLE IF NOT EXISTS flights (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -176,6 +170,54 @@ class Database:
                 created_at      TEXT
             );
 
+            CREATE TABLE IF NOT EXISTS trains (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                train_name      TEXT,
+                train_no        TEXT,
+                origin          TEXT,
+                destination     TEXT,
+                departure_time  TEXT,
+                arrival_time    TEXT,
+                duration        TEXT,
+                distance_km     TEXT,
+                train_type      TEXT,
+                zone            TEXT,
+                state           TEXT,
+                fare            TEXT,
+                availability    TEXT,
+                schedule        TEXT,
+                station_code    TEXT,
+                platforms       TEXT,
+                wifi            TEXT,
+                description     TEXT,
+                latitude        REAL,
+                longitude       REAL,
+                source_url      TEXT,
+                source_type     TEXT DEFAULT 'kaggle',
+                sources         TEXT,
+                created_at      TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS buses (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                route_name      TEXT,
+                operator        TEXT,
+                origin          TEXT,
+                destination     TEXT,
+                departure_time  TEXT,
+                arrival_time    TEXT,
+                duration        TEXT,
+                distance_km     TEXT,
+                bus_type        TEXT,
+                fare            TEXT,
+                city            TEXT,
+                state           TEXT,
+                description     TEXT,
+                source_url      TEXT,
+                source_type     TEXT DEFAULT 'kaggle',
+                sources         TEXT,
+                created_at      TEXT
+            );
 
             CREATE TABLE IF NOT EXISTS events (
                 id             INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -194,7 +236,6 @@ class Database:
                 created_at     TEXT
             );
 
-
             CREATE TABLE IF NOT EXISTS guides (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 title       TEXT NOT NULL,
@@ -206,7 +247,6 @@ class Database:
                 source_url  TEXT,
                 created_at  TEXT
             );
-
 
             CREATE TABLE IF NOT EXISTS crawl_log (
                 id                INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -220,21 +260,17 @@ class Database:
 
 
     # ------------------------------------------------------------------
-    # Safe migration — adds new columns to EXISTING databases without
-    # dropping any data.  Always safe to run; ALTER TABLE is a no-op if
-    # the column already exists (caught and ignored).
+    # Safe migration
     # ------------------------------------------------------------------
     def _migrate(self):
         migrations = [
-            # (table, column, definition)
-            # ── original columns (kept for older DBs) ──────────────────────
+            # original columns
             ('restaurants',    'source_url',        'TEXT'),
             ('hotels',         'source_url',         'TEXT'),
             ('hotels',         'price_per_night',    'TEXT'),
             ('hotels',         'stars',              'TEXT'),
             ('tourist_places', 'source_url',         'TEXT'),
-
-            # ── NEW: visit-time columns — tourist_places ───────────────────
+            # visit-time — tourist_places
             ('tourist_places', 'visit_duration',     'TEXT'),
             ('tourist_places', 'open_days',          'TEXT'),
             ('tourist_places', 'peak_season',        'TEXT'),
@@ -242,31 +278,26 @@ class Database:
             ('tourist_places', 'visit_tips',         'TEXT'),
             ('tourist_places', 'crowd_level',        'TEXT'),
             ('tourist_places', 'visit_months',       'TEXT'),
-
-            # ── NEW: visit-time columns — hotels ───────────────────────────
+            # visit-time — hotels
             ('hotels',         'check_in_time',      'TEXT'),
             ('hotels',         'check_out_time',     'TEXT'),
             ('hotels',         'peak_season',        'TEXT'),
             ('hotels',         'off_season',         'TEXT'),
             ('hotels',         'visit_months',       'TEXT'),
-
-            # ── NEW: visit-time columns — restaurants ──────────────────────
+            # visit-time — restaurants
             ('restaurants',    'open_days',          'TEXT'),
             ('restaurants',    'peak_hours',         'TEXT'),
             ('restaurants',    'visit_tips',         'TEXT'),
-
-            # ── NEW: visit-time columns — events ──────────────────────────
+            # visit-time — events
             ('events',         'start_date',         'TEXT'),
             ('events',         'end_date',           'TEXT'),
             ('events',         'visit_duration',     'TEXT'),
-
-            # ── NEW: visit-time columns — cities ──────────────────────────
+            # visit-time — cities
             ('cities',         'peak_season',        'TEXT'),
             ('cities',         'off_season',         'TEXT'),
             ('cities',         'visit_months',       'TEXT'),
             ('cities',         'avg_visit_days',     'TEXT'),
-
-            # ── flights table columns (for existing DBs without the table) ──
+            # flights
             ('flights',        'name',               'TEXT'),
             ('flights',        'airline',            'TEXT'),
             ('flights',        'origin',             'TEXT'),
@@ -282,6 +313,47 @@ class Database:
             ('flights',        'source_url',         'TEXT'),
             ('flights',        'source_type',        "TEXT DEFAULT 'scraped'"),
             ('flights',        'sources',            'TEXT'),
+            # trains
+            ('trains',         'train_name',         'TEXT'),
+            ('trains',         'train_no',           'TEXT'),
+            ('trains',         'origin',             'TEXT'),
+            ('trains',         'destination',        'TEXT'),
+            ('trains',         'departure_time',     'TEXT'),
+            ('trains',         'arrival_time',       'TEXT'),
+            ('trains',         'duration',           'TEXT'),
+            ('trains',         'distance_km',        'TEXT'),
+            ('trains',         'train_type',         'TEXT'),
+            ('trains',         'zone',               'TEXT'),
+            ('trains',         'state',              'TEXT'),
+            ('trains',         'fare',               'TEXT'),
+            ('trains',         'availability',       'TEXT'),
+            ('trains',         'schedule',           'TEXT'),
+            ('trains',         'station_code',       'TEXT'),
+            ('trains',         'platforms',          'TEXT'),
+            ('trains',         'wifi',               'TEXT'),
+            ('trains',         'description',        'TEXT'),
+            ('trains',         'latitude',           'REAL'),
+            ('trains',         'longitude',          'REAL'),
+            ('trains',         'source_url',         'TEXT'),
+            ('trains',         'source_type',        "TEXT DEFAULT 'kaggle'"),
+            ('trains',         'sources',            'TEXT'),
+            # buses
+            ('buses',          'route_name',         'TEXT'),
+            ('buses',          'operator',           'TEXT'),
+            ('buses',          'origin',             'TEXT'),
+            ('buses',          'destination',        'TEXT'),
+            ('buses',          'departure_time',     'TEXT'),
+            ('buses',          'arrival_time',       'TEXT'),
+            ('buses',          'duration',           'TEXT'),
+            ('buses',          'distance_km',        'TEXT'),
+            ('buses',          'bus_type',           'TEXT'),
+            ('buses',          'fare',               'TEXT'),
+            ('buses',          'city',               'TEXT'),
+            ('buses',          'state',              'TEXT'),
+            ('buses',          'description',        'TEXT'),
+            ('buses',          'source_url',         'TEXT'),
+            ('buses',          'source_type',        "TEXT DEFAULT 'kaggle'"),
+            ('buses',          'sources',            'TEXT'),
         ]
         for table, col, defn in migrations:
             try:
@@ -289,13 +361,11 @@ class Database:
                 self.conn.commit()
                 logger.info(f"DB migration: added {table}.{col}")
             except sqlite3.OperationalError:
-                pass   # column already exists — that's fine
+                pass
 
 
     # ------------------------------------------------------------------
-    # Safe insert  — strips any key that is NOT a real column in the
-    # target table so we never get 'no column named X' errors again,
-    # even when portal_fetcher or future scrapers add extra fields.
+    # Safe insert
     # ------------------------------------------------------------------
     def _safe_insert(self, table: str, data: dict) -> int:
         now = datetime.now().isoformat()
@@ -306,23 +376,18 @@ class Database:
             data['sources'] = json.dumps(data['sources'])
         if isinstance(data.get('amenities'), list):
             data['amenities'] = json.dumps(data['amenities'])
-        # visit_months is stored as JSON list
         if isinstance(data.get('visit_months'), list):
             data['visit_months'] = json.dumps(data['visit_months'])
 
-        # Discover real columns from the live schema
         real_cols = {
             row[1]
             for row in self.conn.execute(f"PRAGMA table_info({table})").fetchall()
         }
-        # Remove keys that don't exist in the table
         filtered = {k: v for k, v in data.items() if k in real_cols}
         if not filtered:
             raise ValueError(f"insert_safe: no valid keys for table '{table}'")
 
-        # Guard NOT NULL name — skip rows where name is missing/blank/NaN
-        # This prevents hundreds of SQLite constraint errors flooding the log
-        # when scrapers/OSM/Kaggle provide rows with no name field.
+        # Guard NOT NULL name — skip nameless rows for name-keyed tables
         _NOT_NULL_NAME_TABLES = {
             'hotels', 'tourist_places', 'restaurants', 'events', 'cities', 'districts'
         }
@@ -342,34 +407,34 @@ class Database:
 
 
     # ------------------------------------------------------------------
-    # Public insert methods (all delegate to _safe_insert)
+    # Public insert methods
     # ------------------------------------------------------------------
     def insert_hotel(self, data: dict) -> int:
         return self._safe_insert('hotels', data)
 
-
     def insert_tourist_place(self, data: dict) -> int:
         return self._safe_insert('tourist_places', data)
-
 
     def insert_restaurant(self, data: dict) -> int:
         return self._safe_insert('restaurants', data)
 
-
     def insert_route(self, data: dict) -> int:
         return self._safe_insert('routes', data)
-
 
     def insert_event(self, data: dict) -> int:
         return self._safe_insert('events', data)
 
-
     def insert_guide(self, data: dict) -> int:
         return self._safe_insert('guides', data)
 
-
     def insert_flight(self, data: dict) -> int:
         return self._safe_insert('flights', data)
+
+    def insert_train(self, data: dict) -> int:
+        return self._safe_insert('trains', data)
+
+    def insert_bus(self, data: dict) -> int:
+        return self._safe_insert('buses', data)
 
 
     def insert_batch(self, table: str, records: list) -> int:
@@ -394,6 +459,10 @@ class Database:
                     self.insert_guide(record)
                 elif table == 'flights':
                     self.insert_flight(record)
+                elif table == 'trains':
+                    self.insert_train(record)
+                elif table == 'buses':
+                    self.insert_bus(record)
                 else:
                     self._safe_insert(table, record)
                 inserted += 1
@@ -416,20 +485,17 @@ class Database:
         ).fetchone()
         return row is not None
 
-
     def get_crawled_urls(self) -> set:
         rows = self.conn.execute(
             "SELECT url FROM crawl_log WHERE status = 'success'"
         ).fetchall()
         return {r['url'] for r in rows}
 
-
     def get_existing_names(self, table: str, col: str = 'name') -> list:
         rows = self.conn.execute(
             f"SELECT {col} FROM {table} WHERE {col} IS NOT NULL"
         ).fetchall()
         return [r[col] for r in rows]
-
 
     def log_crawl(self, url: str, status: str, records: int = 0):
         self.conn.execute(
@@ -444,8 +510,8 @@ class Database:
     # Query helpers
     # ------------------------------------------------------------------
     def get_stats(self) -> dict:
-        tables = ['hotels', 'tourist_places', 'restaurants', 'routes', 'flights',
-                  'events', 'guides', 'crawl_log']
+        tables = ['hotels', 'tourist_places', 'restaurants', 'routes',
+                  'flights', 'trains', 'buses', 'events', 'guides', 'crawl_log']
         stats = {}
         for t in tables:
             try:
@@ -454,7 +520,6 @@ class Database:
             except Exception:
                 stats[t] = 0
         return stats
-
 
     def search(self, table: str, keyword: str, limit: int = 50) -> list:
         query = (
@@ -467,13 +532,11 @@ class Database:
         ).fetchall()
         return [dict(r) for r in rows]
 
-
     def get_all(self, table: str, limit: int = 1000, offset: int = 0) -> list:
         rows = self.conn.execute(
             f"SELECT * FROM {table} LIMIT ? OFFSET ?", (limit, offset)
         ).fetchall()
         return [dict(r) for r in rows]
-
 
     def close(self):
         self.conn.close()

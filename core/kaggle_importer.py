@@ -47,10 +47,6 @@ except (ImportError, OSError):
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Dataset registry — every entry in kaggle_datasets.ALL_DATASETS that is on
-# Kaggle gets a matching entry here with its exact CSV column names.
-# ─────────────────────────────────────────────────────────────────────────────
 DATASETS: list[dict] = [
 
     # ── Tourist Places ────────────────────────────────────────────────────────
@@ -83,9 +79,6 @@ DATASETS: list[dict] = [
         'description':  'Explore India Tourist Destination Dataset',
         'target_table': 'tourist_places',
         'col_map': {
-            # Actual CSV: Place_Name, City, State, Category, Description,
-            #             Best_Time_to_Visit, Rating, Latitude, Longitude,
-            #             Entry_Fee, Timings
             'Place_Name': 'name', 'Place Name': 'name', 'Name': 'name', 'name': 'name',
             'Place': 'name', 'place': 'name',
             'City': 'city', 'city': 'city',
@@ -111,12 +104,6 @@ DATASETS: list[dict] = [
         'description':  'Top Indian Places to Visit (Indian Tourism)',
         'target_table': 'tourist_places',
         'col_map': {
-            # Actual CSV: Zone, State, City, Name, Type,
-            #             time needed to visit in hrs, Google review rating,
-            #             Entrance Fee in INR, Best Time to visit,
-            #             Establishment Year, DSLR Allowed, Weekly Off,
-            #             Significance, Number of google review in lakhs,
-            #             Airport with 50km Radius
             'Name': 'name', 'name': 'name',
             'City': 'city', 'city': 'city',
             'State': 'state', 'state': 'state',
@@ -128,10 +115,6 @@ DATASETS: list[dict] = [
             'Best Time to visit': 'best_time_to_visit',
             'Weekly Off': 'timings',
             'Significance': 'description',
-            'Establishment Year': 'description',
-            'DSLR Allowed': 'description',
-            'Number of google review in lakhs': 'description',
-            'Airport with 50km Radius': 'description',
         },
     },
     {
@@ -304,8 +287,6 @@ DATASETS: list[dict] = [
         'description':  'Google Indian Hotel Data 2023',
         'target_table': 'hotels',
         'col_map': {
-            # Actual CSV: Hotel, Location, Rating, Category, Price,
-            #             Latitude, Longitude, Description
             'Hotel': 'name', 'Hotel Name': 'name', 'Hotel_Name': 'name',
             'hotel': 'name', 'Name': 'name', 'name': 'name',
             'Location': 'address', 'location': 'address',
@@ -344,6 +325,23 @@ DATASETS: list[dict] = [
             'Latitude': 'latitude', 'Longitude': 'longitude',
         },
     },
+    {
+        'id':           'hotel_details',
+        'slug':         'nehaprabhakar/hotel-details-dataset-india',
+        'description':  'Hotel Details Dataset — India',
+        'target_table': 'hotels',
+        'col_map': {
+            'hotel_name': 'name', 'name': 'name', 'Hotel': 'name',
+            'city': 'city', 'City': 'city',
+            'state': 'state', 'State': 'state',
+            'address': 'address', 'Address': 'address',
+            'description': 'description', 'Description': 'description',
+            'rating': 'rating', 'Rating': 'rating',
+            'price': 'price_per_night', 'Price': 'price_per_night',
+            'latitude': 'latitude', 'Latitude': 'latitude',
+            'longitude': 'longitude', 'Longitude': 'longitude',
+        },
+    },
 
     # ── Flights ───────────────────────────────────────────────────────────────
     {
@@ -371,9 +369,6 @@ DATASETS: list[dict] = [
         'description':  'Indian Domestic Airline Dataset (103 airports)',
         'target_table': 'flights',
         'col_map': {
-            # Actual CSV: Airline, Source, Destination, Route,
-            #             Dep_Time, Arrival_Time, Duration,
-            #             Total_Stops, Additional_Info, Price
             'Airline': 'airline', 'airline': 'airline', 'Carrier': 'airline',
             'Flight': 'name', 'flight': 'name', 'Flight_Name': 'name',
             'Source': 'origin', 'source': 'origin', 'From': 'origin', 'Origin': 'origin',
@@ -475,62 +470,69 @@ DATASETS: list[dict] = [
         },
     },
 
-    # ── Railways ──────────────────────────────────────────────────────────────
+    # ── Railways → trains table ───────────────────────────────────────────────
     {
         'id':           'indian_railways_core',
         'slug':         'sripaadsrinivasan/indian-railways-dataset',
         'description':  'Indian Railways Dataset',
-        'target_table': 'tourist_places',
+        'target_table': 'trains',
         'col_map': {
-            'Train_Name': 'name', 'Train Name': 'name', 'name': 'name', 'Name': 'name',
-            'Train_No': 'description', 'Train No': 'description',
-            'Source': 'city', 'From': 'city', 'Origin': 'city',
-            'Destination': 'description', 'To': 'description',
-            'Route': 'description', 'Type': 'category', 'Category': 'category',
-            'Distance': 'description', 'Duration': 'description',
+            'Train_Name': 'train_name', 'Train Name': 'train_name', 'TrainName': 'train_name',
+            'train_name': 'train_name', 'Name': 'train_name', 'name': 'train_name',
+            'Train_No': 'train_no', 'Train No': 'train_no', 'TrainNo': 'train_no',
+            'Source': 'origin', 'From': 'origin', 'Origin': 'origin', 'source': 'origin',
+            'Destination': 'destination', 'To': 'destination', 'dest': 'destination',
+            'Route': 'description', 'Type': 'train_type', 'Category': 'train_type',
+            'Distance': 'distance_km', 'Distance_km': 'distance_km',
+            'Duration': 'duration',
+            'Departure': 'departure_time', 'Departure_Time': 'departure_time',
+            'Arrival': 'arrival_time', 'Arrival_Time': 'arrival_time',
+            'Zone': 'zone', 'State': 'state',
         },
     },
     {
         'id':           'indian_railways_latest',
         'slug':         'arihantjain09/indian-railways-latest',
         'description':  'Indian Railways Latest (11,114 trains)',
-        'target_table': 'tourist_places',
+        'target_table': 'trains',
         'col_map': {
-            'Train_Name': 'name', 'Train Name': 'name', 'TrainName': 'name',
-            'train_name': 'name', 'Name': 'name',
-            'Train_No': 'description', 'TrainNo': 'description',
-            'From': 'city', 'Source': 'city', 'Origin': 'city',
-            'To': 'description', 'Destination': 'description',
-            'Type': 'category', 'Train_Type': 'category',
-            'Distance_km': 'description', 'Duration': 'description',
-            'Departure': 'description', 'Arrival': 'description',
+            'Train_Name': 'train_name', 'Train Name': 'train_name', 'TrainName': 'train_name',
+            'train_name': 'train_name', 'Name': 'train_name',
+            'Train_No': 'train_no', 'TrainNo': 'train_no', 'train_no': 'train_no',
+            'From': 'origin', 'Source': 'origin', 'Origin': 'origin',
+            'To': 'destination', 'Destination': 'destination',
+            'Type': 'train_type', 'Train_Type': 'train_type',
+            'Distance_km': 'distance_km', 'Distance': 'distance_km',
+            'Duration': 'duration',
+            'Departure': 'departure_time', 'Arrival': 'arrival_time',
+            'Zone': 'zone',
         },
     },
     {
         'id':           'railway_stations',
         'slug':         'flugeltomar/indian-railway-dataset',
         'description':  'Indian Railway Stations Dataset',
-        'target_table': 'tourist_places',
+        'target_table': 'trains',
         'col_map': {
-            'Station_Name': 'name', 'Station Name': 'name', 'StationName': 'name',
-            'station_name': 'name', 'Name': 'name',
-            'Station_Code': 'description', 'Code': 'description',
-            'Zone': 'district', 'State': 'state', 'City': 'city',
+            'Station_Name': 'train_name', 'Station Name': 'train_name',
+            'StationName': 'train_name', 'station_name': 'train_name', 'Name': 'train_name',
+            'Station_Code': 'station_code', 'Code': 'station_code',
+            'Zone': 'zone', 'State': 'state', 'City': 'origin',
             'Latitude': 'latitude', 'Lat': 'latitude',
             'Longitude': 'longitude', 'Lon': 'longitude',
-            'Category': 'category',
+            'Category': 'train_type',
         },
     },
     {
         'id':           'railway_stations_facilities',
         'slug':         'shraddha4ever20/indian-railway-stations-codes-and-facilities-data',
         'description':  'Indian Railway Stations Codes & Facilities',
-        'target_table': 'tourist_places',
+        'target_table': 'trains',
         'col_map': {
-            'Station_Name': 'name', 'Station Name': 'name', 'Name': 'name',
-            'Station_Code': 'description', 'Code': 'description',
-            'Zone': 'district', 'State': 'state',
-            'Platforms': 'description', 'WiFi': 'description',
+            'Station_Name': 'train_name', 'Station Name': 'train_name', 'Name': 'train_name',
+            'Station_Code': 'station_code', 'Code': 'station_code',
+            'Zone': 'zone', 'State': 'state',
+            'Platforms': 'platforms', 'WiFi': 'wifi',
             'Food': 'description', 'Accessibility': 'description',
             'Latitude': 'latitude', 'Longitude': 'longitude',
         },
@@ -539,60 +541,83 @@ DATASETS: list[dict] = [
         'id':           'railways_prices',
         'slug':         'bhavyarajdev/indian-railways-schedule-prices-availability-data',
         'description':  'Indian Railways Schedule, Prices & Availability',
-        'target_table': 'tourist_places',
+        'target_table': 'trains',
         'col_map': {
-            'Train_Name': 'name', 'Train Name': 'name', 'Name': 'name',
-            'Train_No': 'description',
-            'From': 'city', 'To': 'description',
-            'Class': 'category', 'Fare': 'entry_fee', 'Price': 'entry_fee',
-            'Availability': 'description', 'Schedule': 'description',
-            'Departure': 'timings', 'Arrival': 'description',
+            # Common real column names in this dataset
+            'Train_Name': 'train_name', 'Train Name': 'train_name', 'Name': 'train_name',
+            'train_name': 'train_name', 'TrainName': 'train_name',
+            'Train_No': 'train_no', 'Train No': 'train_no', 'train_no': 'train_no',
+            'From': 'origin', 'Source': 'origin', 'from': 'origin', 'source_station': 'origin',
+            'To': 'destination', 'Destination': 'destination', 'to': 'destination',
+            'Class': 'train_type', 'class': 'train_type', 'Travel_Class': 'train_type',
+            'Fare': 'fare', 'fare': 'fare', 'Price': 'fare', 'price': 'fare',
+            'Availability': 'availability', 'availability': 'availability',
+            'Schedule': 'schedule', 'schedule': 'schedule',
+            'Departure': 'departure_time', 'departure': 'departure_time',
+            'Dep_Time': 'departure_time', 'Departure_Time': 'departure_time',
+            'Arrival': 'arrival_time', 'arrival': 'arrival_time',
+            'Arrival_Time': 'arrival_time',
+            'Duration': 'duration', 'duration': 'duration',
+            'Distance': 'distance_km', 'distance': 'distance_km',
+            'Zone': 'zone', 'State': 'state',
         },
     },
     {
         'id':           'railways_timetable',
         'slug':         'harsh16/indian-railways-time-table-for-trains-available',
         'description':  'Indian Railways Time Table',
-        'target_table': 'tourist_places',
+        'target_table': 'trains',
         'col_map': {
-            'Train_Name': 'name', 'Train Name': 'name', 'TrainName': 'name', 'Name': 'name',
-            'Train_No': 'description', 'TrainNo': 'description',
-            'Source': 'city', 'From': 'city',
-            'Destination': 'description', 'To': 'description',
-            'Departure_Time': 'timings', 'Arrival_Time': 'description',
-            'Type': 'category', 'Zone': 'district',
+            'Train_Name': 'train_name', 'Train Name': 'train_name',
+            'TrainName': 'train_name', 'Name': 'train_name',
+            'Train_No': 'train_no', 'TrainNo': 'train_no',
+            'Source': 'origin', 'From': 'origin',
+            'Destination': 'destination', 'To': 'destination',
+            'Departure_Time': 'departure_time', 'Dep_Time': 'departure_time',
+            'Arrival_Time': 'arrival_time',
+            'Type': 'train_type', 'Zone': 'zone',
+            'State': 'state', 'Distance': 'distance_km',
         },
     },
 
-    # ── Bus Routes ────────────────────────────────────────────────────────────
+    # ── Bus Routes → buses table ──────────────────────────────────────────────
     {
         'id':           'bus_routes_pan_india',
         'slug':         'rohitgds/pan-india-bus-routes-35k-schedules-1000-cities',
         'description':  'Pan India Bus Routes (35,667 schedules)',
-        'target_table': 'tourist_places',
+        'target_table': 'buses',
         'col_map': {
-            'Route_Name': 'name', 'Route Name': 'name', 'Bus_Name': 'name', 'Name': 'name',
-            'Source': 'city', 'From': 'city', 'Origin': 'city',
-            'Destination': 'description', 'To': 'description',
-            'Departure_Time': 'timings', 'Arrival_Time': 'description',
-            'Duration': 'description', 'Distance': 'description',
-            'Price': 'entry_fee', 'Fare': 'entry_fee',
-            'Operator': 'category', 'Bus_Type': 'category',
+            'Route_Name': 'route_name', 'Route Name': 'route_name', 'Route': 'route_name',
+            'Bus_Name': 'route_name', 'Name': 'route_name', 'name': 'route_name',
+            'Source': 'origin', 'From': 'origin', 'Origin': 'origin', 'from': 'origin',
+            'Destination': 'destination', 'To': 'destination', 'to': 'destination',
+            'Departure_Time': 'departure_time', 'Dep_Time': 'departure_time',
+            'Departure': 'departure_time',
+            'Arrival_Time': 'arrival_time', 'Arrival': 'arrival_time',
+            'Duration': 'duration', 'duration': 'duration',
+            'Distance': 'distance_km', 'Distance_km': 'distance_km',
+            'Price': 'fare', 'Fare': 'fare', 'fare': 'fare', 'price': 'fare',
+            'Operator': 'operator', 'operator': 'operator', 'Bus_Operator': 'operator',
+            'Bus_Type': 'bus_type', 'Type': 'bus_type', 'type': 'bus_type',
+            'City': 'city', 'State': 'state',
         },
     },
     {
         'id':           'bus_routes_cities',
         'slug':         'ayushkhaire/indian-cities-buses-routes-and-prices',
         'description':  'Indian Cities Bus Routes & Prices',
-        'target_table': 'tourist_places',
+        'target_table': 'buses',
         'col_map': {
-            'Route': 'name', 'Route_Name': 'name', 'Bus': 'name', 'Name': 'name',
-            'From': 'city', 'Source': 'city',
-            'To': 'description', 'Destination': 'description',
-            'City': 'city', 'State': 'state',
-            'Price': 'entry_fee', 'Fare': 'entry_fee',
-            'Duration': 'description', 'Distance': 'description',
-            'Type': 'category',
+            'Route': 'route_name', 'Route_Name': 'route_name', 'route_name': 'route_name',
+            'Bus': 'route_name', 'Name': 'route_name', 'name': 'route_name',
+            'From': 'origin', 'Source': 'origin', 'from': 'origin',
+            'To': 'destination', 'Destination': 'destination', 'to': 'destination',
+            'City': 'city', 'city': 'city',
+            'State': 'state', 'state': 'state',
+            'Price': 'fare', 'Fare': 'fare', 'fare': 'fare', 'price': 'fare',
+            'Duration': 'duration', 'Distance': 'distance_km',
+            'Type': 'bus_type', 'Bus_Type': 'bus_type',
+            'Operator': 'operator',
         },
     },
 
@@ -640,7 +665,6 @@ DATASETS: list[dict] = [
             'Category': 'category',
             'Description': 'description',
             'Distance': 'description', 'Duration': 'description',
-            'Traffic': 'description', 'Sustainability_Score': 'description',
         },
     },
     {
@@ -666,23 +690,6 @@ DATASETS: list[dict] = [
             'State': 'state', 'City': 'city', 'Name': 'name',
             'Destination': 'name', 'Description': 'description',
             'Rating': 'rating', 'Visitors': 'description',
-        },
-    },
-    {
-        'id':           'hotel_details',
-        'slug':         'nehaprabhakar/hotel-details-dataset-india',
-        'description':  'Hotel Details Dataset — India',
-        'target_table': 'hotels',
-        'col_map': {
-            'hotel_name': 'name', 'name': 'name', 'Hotel': 'name',
-            'city': 'city', 'City': 'city',
-            'state': 'state', 'State': 'state',
-            'address': 'address', 'Address': 'address',
-            'description': 'description', 'Description': 'description',
-            'rating': 'rating', 'Rating': 'rating',
-            'price': 'price_per_night', 'Price': 'price_per_night',
-            'latitude': 'latitude', 'Latitude': 'latitude',
-            'longitude': 'longitude', 'Longitude': 'longitude',
         },
     },
     {
@@ -715,163 +722,136 @@ DATASETS: list[dict] = [
 ]
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# KaggleImporter — Main class for importing Kaggle datasets
-# ─────────────────────────────────────────────────────────────────────────────
 class KaggleImporter:
     """Import curated Kaggle datasets into nexuzy_travel.db"""
-    
+
     def __init__(self, db):
-        """Initialize KaggleImporter with database connection
-        
-        Args:
-            db: Database connection object
-        """
         self.db = db
         self.imported_count = 0
         self.failed_count = 0
-    
+
     def run_all(self):
         """Import all available Kaggle datasets"""
         logger.info(f"Starting import of {len(DATASETS)} Kaggle datasets...")
-        
+
         if not _KAGGLE_OK:
             logger.error("Kaggle API not configured. Cannot proceed.")
             return False
-        
+
         if not _PANDAS_OK:
             logger.error("pandas not installed. Cannot proceed.")
             return False
-        
+
         for dataset in DATASETS:
             try:
                 self.run(dataset['id'])
             except Exception as e:
                 logger.error(f"Failed to import {dataset['id']}: {e}")
                 self.failed_count += 1
-        
+
         logger.info(f"Import complete: {self.imported_count} succeeded, {self.failed_count} failed")
         return self.failed_count == 0
-    
+
     def run(self, dataset_id: str):
-        """Import a specific dataset by ID
-        
-        Args:
-            dataset_id: The 'id' field from DATASETS
-            
-        Returns:
-            bool: True if successful
-        """
-        # Find the dataset in registry
-        dataset = None
-        for ds in DATASETS:
-            if ds['id'] == dataset_id:
-                dataset = ds
-                break
-        
+        """Import a specific dataset by ID"""
+        dataset = next((ds for ds in DATASETS if ds['id'] == dataset_id), None)
         if not dataset:
             logger.error(f"Dataset '{dataset_id}' not found in registry")
             return False
-        
+
         logger.info(f"Importing {dataset['description']} ({dataset['slug']})...")
-        
+
         try:
             if not _KAGGLE_OK or not _PANDAS_OK:
                 logger.warning(f"Skipping {dataset_id}: missing dependencies")
                 return False
-            
-            # Create temporary directory for download
+
             with tempfile.TemporaryDirectory() as tmpdir:
                 tmppath = Path(tmpdir)
-                
-                # Download dataset
-                logger.debug(f"Downloading from {dataset['slug']}...")
+
                 import subprocess
                 result = subprocess.run(
                     ['kaggle', 'datasets', 'download', '-d', dataset['slug'], '-p', str(tmppath)],
                     capture_output=True,
                     timeout=300
                 )
-                
+
                 if result.returncode != 0:
                     logger.error(f"Kaggle download failed: {result.stderr.decode()}")
                     self.failed_count += 1
                     return False
-                
-                # Extract and find CSV
+
                 import zipfile
                 for zf in tmppath.glob('*.zip'):
                     with zipfile.ZipFile(zf) as z:
                         z.extractall(tmppath)
-                
-                # Find CSV files
+
                 csv_files = list(tmppath.glob('*.csv'))
                 if not csv_files:
                     logger.warning(f"No CSV files found in {dataset['slug']}")
                     self.failed_count += 1
                     return False
-                
-                # Load first CSV
+
                 csv_file = csv_files[0]
                 logger.debug(f"Loading {csv_file.name}...")
-                
-                # Try to load CSV with error handling for malformed rows
+
+                # Log actual CSV columns to help debug col_map mismatches
                 try:
+                    df = pd.read_csv(csv_file, encoding='utf-8', nrows=0)
+                    logger.debug(f"CSV columns for {dataset_id}: {list(df.columns)}")
                     df = pd.read_csv(csv_file, encoding='utf-8')
                 except (pd.errors.ParserError, UnicodeDecodeError) as e:
-                    logger.warning(f"CSV parsing error, attempting with error_bad_lines: {e}")
+                    logger.warning(f"CSV parsing error, retrying with on_bad_lines=skip: {e}")
                     try:
-                        # Try again with on_bad_lines='skip' (pandas 1.3+) or error_bad_lines=False (pandas < 1.3)
                         try:
                             df = pd.read_csv(csv_file, encoding='utf-8', on_bad_lines='skip')
                         except TypeError:
                             df = pd.read_csv(csv_file, encoding='utf-8', error_bad_lines=False)
                     except Exception as e2:
-                        logger.error(f"Failed to parse CSV even with error recovery: {e2}")
+                        logger.error(f"Failed to parse CSV: {e2}")
                         self.failed_count += 1
                         return False
-                
+
                 if df.empty:
-                    logger.warning(f"CSV file {csv_file.name} is empty after parsing")
+                    logger.warning(f"CSV file {csv_file.name} is empty")
                     self.failed_count += 1
                     return False
-                
-                # Map columns and prepare data
+
                 mapped_data = self._map_columns(df, dataset['col_map'])
-                
-                # Insert into database
+
+                if not mapped_data:
+                    logger.warning(
+                        f"No rows mapped for {dataset_id}. "
+                        f"CSV columns: {list(df.columns)} | "
+                        f"col_map keys: {list(dataset['col_map'].keys())}"
+                    )
+                    self.failed_count += 1
+                    return False
+
                 if self.db and hasattr(self.db, 'insert_batch'):
                     self.db.insert_batch(dataset['target_table'], mapped_data)
-                
+
                 logger.info(f"Successfully imported {len(mapped_data)} records from {dataset_id}")
                 self.imported_count += 1
                 return True
-                
+
         except Exception as e:
             logger.error(f"Error importing {dataset_id}: {e}")
             self.failed_count += 1
             return False
-    
+
     def _map_columns(self, df, col_map):
-        """Map CSV columns to database columns using the mapping dictionary
-        
-        Args:
-            df: pandas DataFrame
-            col_map: Dictionary mapping CSV columns to DB columns
-            
-        Returns:
-            list: List of dictionaries with mapped data
-        """
+        """Map CSV columns to database columns using the mapping dictionary"""
         mapped_records = []
-        
+
         for _, row in df.iterrows():
             record = {}
             for csv_col, db_col in col_map.items():
                 if csv_col in df.columns and pd.notna(row[csv_col]):
                     if db_col not in record or pd.isna(record.get(db_col)):
                         record[db_col] = row[csv_col]
-            
+
             if record:
                 mapped_records.append(record)
-        
+
         return mapped_records
